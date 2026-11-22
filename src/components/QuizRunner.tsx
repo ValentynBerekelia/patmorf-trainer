@@ -171,15 +171,13 @@ export default function QuizRunner({
   return (
     <div className="space-y-5">
       <div>
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
-            <p className="text-sm text-slate-400">{subtitle}</p>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">{title}</h1>
           <p className="text-sm font-semibold text-slate-300">
             Питання {index + 1} / {questions.length}
             <span className="ml-3 text-mint-300">✓ {correctCount}</span>
           </p>
+          <p className="hidden w-full text-sm text-slate-400 sm:block">{subtitle}</p>
         </div>
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
           <motion.div
@@ -203,7 +201,7 @@ export default function QuizRunner({
             <div className="relative">
               <PrepImage
                 prep={question.prep}
-                heightClass="h-[300px] sm:h-[440px]"
+                heightClass="h-[260px] sm:h-[440px]"
               />
               <AnimatePresence>
                 {isCorrect && (

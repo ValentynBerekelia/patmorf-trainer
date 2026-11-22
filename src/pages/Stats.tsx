@@ -125,12 +125,12 @@ export default function Stats() {
       <section className="card p-5 sm:p-6">
         <h2 className="text-lg font-bold">Історія тренувань</h2>
         {state.sessions.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-400">
-            Ще немає завершених сесій.{' '}
-            <Link to="/quiz" className="text-mint-300 underline-offset-4 hover:underline">
+          <div className="mt-3">
+            <p className="text-sm text-slate-400">Ще немає завершених сесій.</p>
+            <Link to="/quiz" className="btn-ghost mt-3">
               Почати квіз
             </Link>
-          </p>
+          </div>
         ) : (
           <ul className="mt-4 divide-y divide-white/[0.08]">
             {state.sessions.map((s) => {

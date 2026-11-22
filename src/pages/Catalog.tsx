@@ -58,14 +58,14 @@ export default function Catalog() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Напр.: лейоміома, печінка, 552…"
-            className="w-full rounded-xl border border-white/10 bg-ink-950/70 py-3 pl-10 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-mint-400/50"
+            className="w-full rounded-xl border border-white/10 bg-ink-950/70 py-3.5 pl-10 pr-11 text-base text-slate-100 placeholder:text-slate-500 focus:border-mint-400/50 sm:py-3 sm:text-sm"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery('')}
               aria-label="Очистити пошук"
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-500 hover:text-slate-200"
+              className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-500 hover:text-slate-200"
             >
               <X className="h-4 w-4" />
             </button>
@@ -81,7 +81,7 @@ export default function Catalog() {
                 key={key}
                 type="button"
                 onClick={() => setFilter(key)}
-                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                className={`min-h-[40px] rounded-full border px-4 text-xs font-semibold transition-colors ${
                   active
                     ? 'border-mint-400/60 bg-mint-500/15 text-mint-200'
                     : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
@@ -126,7 +126,7 @@ export default function Catalog() {
                   <div className="p-4">
                     <div className="flex items-center justify-between gap-2">
                       <p className="label">{prepNumberLabel(p)}</p>
-                      <span className="text-[10px] uppercase tracking-wider text-violet-300/80">
+                      <span className="text-[11px] uppercase tracking-wider text-violet-300/80">
                         {categoryLabel(p.category)}
                       </span>
                     </div>

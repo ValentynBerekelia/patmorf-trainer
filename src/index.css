@@ -13,6 +13,24 @@
     min-height: 100%;
   }
 
+  html {
+    /* iOS не повинен самовільно збільшувати шрифт при повороті екрана */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* без сірого «спалаху» під пальцем на Android/iOS */
+  button,
+  a,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* на телефоні зручніше, коли довгі назви препаратів переносяться по складах */
+  body {
+    overflow-wrap: break-word;
+  }
+
   body {
     @apply bg-ink-950 text-slate-100 antialiased;
     background-image:
@@ -40,8 +58,9 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
-           transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 py-3
+           text-sm font-semibold transition-all duration-200
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-primary {
@@ -74,10 +93,12 @@
   height: 100%;
   transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 .flip-inner.is-flipped {
   transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 
 .flip-face {
@@ -90,9 +111,15 @@
 
 .flip-face--back {
   transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 
 /* Тонкий скролбар */
+.thin-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 .thin-scroll::-webkit-scrollbar {
   width: 8px;
 }

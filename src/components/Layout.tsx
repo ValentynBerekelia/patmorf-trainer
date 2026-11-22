@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity,
@@ -25,11 +25,27 @@ const NAV = [
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // навігація кнопками «назад/вперед» теж має закривати мобільне меню
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // поки меню відкрите, сторінка під ним не скролиться
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6">
           <Link to="/" className="group flex items-center gap-2.5" onClick={() => setOpen(false)}>
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-mint-400 to-violet-500 text-ink-950 shadow-lg shadow-violet-500/25">
               <Activity className="h-5 w-5" strokeWidth={2.5} />
@@ -87,7 +103,7 @@ export default function Layout() {
                     end={end}
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                      `flex min-h-[48px] items-center gap-2.5 rounded-xl px-3 text-sm font-medium ${
                         isActive ? 'bg-white/10 text-mint-300' : 'text-slate-300 hover:bg-white/5'
                       }`
                     }
@@ -102,11 +118,11 @@ export default function Layout() {
         </AnimatePresence>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:px-6 sm:py-10">
         <Outlet />
       </main>
 
-      <footer className="border-t border-white/10 px-4 py-6 text-center text-xs text-slate-500 sm:px-6">
+      <footer className="border-t border-white/10 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center text-xs text-slate-500 sm:px-6">
         PathoQuiz · дані та зображення взяті з «Патоморфологія препарати.pdf»
       </footer>
     </div>

@@ -17,15 +17,37 @@ import { weightedSample } from '../lib/random';
 import { weightFor } from '../lib/srs';
 import { useProgress } from '../context/ProgressContext';
 
-const DECK_SIZE = 20;
+/** Доступні розміри колоди. null = усі препарати бази. */
+const DECK_SIZES: { value: number | null; label: string }[] = [
+  { value: 20, label: '20' },
+  { value: 50, label: '50' },
+  { value: null, label: `Усі ${preparations.length}` },
+];
+
+const SIZE_KEY = 'pathoquiz:deckSize';
+
+const readSavedSize = (): number | null => {
+  try {
+    const raw = window.localStorage.getItem(SIZE_KEY);
+    if (raw === 'all') return null;
+    const n = Number(raw);
+    return DECK_SIZES.some((s) => s.value === n) ? n : 20;
+  } catch {
+    return 20;
+  }
+};
 
 /** Режим 2 — «Повторення»: інтерактивні картки з 3D-перевертанням. */
 export default function Flashcards() {
   const { statsFor, markKnown, markForReview, addSession } = useProgress();
+  const [deckSize, setDeckSize] = useState<number | null>(readSavedSize);
 
   const build = useCallback(
-    () => weightedSample(preparations, DECK_SIZE, (p) => weightFor(statsFor(p.id))),
-    [statsFor],
+    () =>
+      weightedSample(preparations, deckSize ?? preparations.length, (p) =>
+        weightFor(statsFor(p.id)),
+      ),
+    [statsFor, deckSize],
   );
 
   const [deck, setDeck] = useState(build);
@@ -59,8 +81,18 @@ export default function Flashcards() {
     window.setTimeout(() => setIndex((i) => i + 1), 180);
   };
 
-  const restart = () => {
-    setDeck(build());
+  const restart = (size: number | null = deckSize) => {
+    if (size !== deckSize) {
+      setDeckSize(size);
+      try {
+        window.localStorage.setItem(SIZE_KEY, size === null ? 'all' : String(size));
+      } catch {
+        /* приватний режим — просто не запамʼятовуємо вибір */
+      }
+    }
+    setDeck(
+      weightedSample(preparations, size ?? preparations.length, (p) => weightFor(statsFor(p.id))),
+    );
     setIndex(0);
     setFlipped(false);
     setKnown(0);
@@ -94,7 +126,7 @@ export default function Flashcards() {
           Препарати, позначені «Потрібно повторити», частіше з’являтимуться наступного разу.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <button type="button" className="btn-primary" onClick={restart}>
+          <button type="button" className="btn-primary" onClick={() => restart()}>
             <RotateCcw className="h-4 w-4" /> Нова колода
           </button>
           <Link to="/" className="btn-ghost">
@@ -109,19 +141,38 @@ export default function Flashcards() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
-            <Layers className="h-6 w-6 text-violet-300" /> Повторення
-          </h1>
-          <p className="text-sm text-slate-400">
-            Натисніть на картку, щоб перевернути. Оцініть себе чесно — це впливає на черговість.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h1 className="flex items-center gap-2 text-xl font-extrabold tracking-tight sm:text-2xl">
+          <Layers className="h-5 w-5 text-violet-300 sm:h-6 sm:w-6" /> Повторення
+        </h1>
         <p className="text-sm font-semibold text-slate-300">
           Картка {index + 1} / {deck.length}
           <span className="ml-3 text-mint-300">✓ {known}</span>
         </p>
+        <p className="hidden w-full text-sm text-slate-400 sm:block">
+          Натисніть на картку, щоб перевернути. Оцініть себе чесно — це впливає на черговість.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="label">Колода</span>
+        {DECK_SIZES.map((opt) => {
+          const active = deckSize === opt.value;
+          return (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => restart(opt.value)}
+              className={`min-h-[36px] rounded-full border px-3.5 text-xs font-semibold transition-colors ${
+                active
+                  ? 'border-violet-400/60 bg-violet-500/20 text-violet-100'
+                  : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -140,8 +191,8 @@ export default function Flashcards() {
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.28 }}
         >
-          <div className="flip-scene mx-auto min-h-[620px] w-full max-w-3xl sm:min-h-[720px]">
-            <div className={`flip-inner min-h-[620px] sm:min-h-[720px] ${flipped ? 'is-flipped' : ''}`}>
+          <div className="flip-scene mx-auto w-full max-w-3xl h-[calc(100svh-290px)] min-h-[430px] max-h-[760px] sm:h-[calc(100svh-250px)] sm:min-h-[560px]">
+            <div className={`flip-inner h-full ${flipped ? 'is-flipped' : ''}`}>
               {/* ЛИЦЬОВА СТОРОНА */}
               <button
                 type="button"
@@ -195,20 +246,22 @@ export default function Flashcards() {
                   />
                 </div>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => advance(true)}
-                    className="btn border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"
+                    className="btn min-h-[48px] border border-emerald-400/40 bg-emerald-500/15 px-3 text-emerald-100 hover:bg-emerald-500/25"
                   >
-                    <Check className="h-4 w-4" /> Знаю
+                    <Check className="h-4 w-4 shrink-0" /> Знаю
                   </button>
                   <button
                     type="button"
                     onClick={() => advance(false)}
-                    className="btn border border-amber-400/40 bg-amber-500/15 text-amber-100 hover:bg-amber-500/25"
+                    className="btn min-h-[48px] border border-amber-400/40 bg-amber-500/15 px-3 text-amber-100 hover:bg-amber-500/25"
                   >
-                    <RotateCcw className="h-4 w-4" /> Потрібно повторити
+                    <RotateCcw className="h-4 w-4 shrink-0" />
+                    <span className="sm:hidden">Повторити</span>
+                    <span className="hidden sm:inline">Потрібно повторити</span>
                   </button>
                 </div>
               </div>

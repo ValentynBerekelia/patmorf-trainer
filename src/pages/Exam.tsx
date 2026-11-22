@@ -103,7 +103,7 @@ export default function Exam() {
             {correct} правильних із {questions.length}
           </p>
 
-          <div className="mt-7 grid grid-cols-3 gap-3 text-center">
+          <div className="mt-7 grid grid-cols-3 gap-2 text-center sm:gap-3">
             <div className="rounded-xl border border-white/10 bg-white/5 p-4">
               <p className="text-2xl font-extrabold text-mint-300">{correct}</p>
               <p className="label mt-1">Правильно</p>
@@ -138,8 +138,8 @@ export default function Exam() {
             <h3 className="mb-3 text-lg font-bold">Розбір помилок ({wrongOnes.length})</h3>
             <div className="space-y-4">
               {wrongOnes.map(({ q, chosen: c }) => (
-                <div key={q.prep.id} className="card grid gap-4 p-5 md:grid-cols-[220px_minmax(0,1fr)]">
-                  <PrepImage prep={q.prep} heightClass="h-48" />
+                <div key={q.prep.id} className="card grid gap-4 p-4 sm:p-5 md:grid-cols-[220px_minmax(0,1fr)]">
+                  <PrepImage prep={q.prep} heightClass="h-48 md:self-start" />
                   <div>
                     <p className="label">{prepNumberLabel(q.prep)} · {q.prep.organ}</p>
                     <p className="mt-1.5 flex items-center gap-2 text-sm text-rose-200">
@@ -165,17 +165,15 @@ export default function Exam() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
-            <GraduationCap className="h-6 w-6 text-rose-300" /> Складний іспит
-          </h1>
-          <p className="text-sm text-slate-400">
-            {EXAM_SIZE} питань у випадковому порядку. Правильні відповіді — тільки після завершення.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h1 className="flex items-center gap-2 text-xl font-extrabold tracking-tight sm:text-2xl">
+          <GraduationCap className="h-5 w-5 text-rose-300 sm:h-6 sm:w-6" /> Складний іспит
+        </h1>
         <p className="text-sm font-semibold text-slate-300">
           {index + 1} / {questions.length} · відповіли {answeredCount}
+        </p>
+        <p className="hidden w-full text-sm text-slate-400 sm:block">
+          {EXAM_SIZE} питань у випадковому порядку. Правильні відповіді — тільки після завершення.
         </p>
       </div>
 
@@ -196,8 +194,8 @@ export default function Exam() {
           transition={{ duration: 0.25 }}
           className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]"
         >
-          <div className="card p-3 sm:p-4">
-            <PrepImage prep={question.prep} heightClass="h-[300px] sm:h-[440px]" />
+          <div className="card self-start p-3 sm:p-4">
+            <PrepImage prep={question.prep} heightClass="h-[260px] sm:h-[440px]" />
           </div>
 
           <div className="card p-5">
